@@ -1,9 +1,14 @@
 import React from 'react';
-import { Button, View, Text,Image,TouchableOpacity ,TouchableHighlight,Alert,StyleSheet} from 'react-native';
+import { Button, View, Text,Image,TouchableOpacity ,TouchableHighlight,Alert,StyleSheet,ListView,ScrollView,PixelRatio} from 'react-native';
 import { createStackNavigator } from 'react-navigation'; // Version can be specified in package.json
+import CameraRoll from 'rn-camera-roll';
+import { ImagePicker } from 'expo';
 
 
 
+var FileUpload = require('NativeModules').FileUpload;
+
+let PHOTOS_COUNT_BY_FETCH = 24;
 
 class HomeScreen extends React.Component {
     render() {
@@ -24,6 +29,10 @@ class DetailsScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            loading: true,
+        }
+
+        this.state.photos = {
             loading: true,
         }
     }
@@ -116,7 +125,7 @@ class DetailsScreen extends React.Component {
     render() {
         return (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={styles.titleText}>IMAGE CATALOG</Text>
+                <Text style={styles1.titleText}>IMAGE CATALOG</Text>
                 <Button
                     title="Go back"
                     onPress={() => this.props.navigation.goBack()}
@@ -130,18 +139,23 @@ class DetailsScreen extends React.Component {
                     onPress={() => this.props.navigation.navigate('contentImage')}
                 />
 
+                <Button
+                    title="camera"
+                    onPress={() => this.props.navigation.navigate('camera')}
+                />
+
 
 
                 <View>
                     <TouchableOpacity onPress={this.onPressButtonGET1.bind(this)}>
                     <Image style={{width: 120, height: 120}}
-                        source={require('/Users/z002r1y/react/ArtGeneration/styleImages/img.jpg')}
+                        source={require('/Users/z002r1y/react/ArtGeneration-ui/styleImages/img.jpg')}
                     />
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={this.onPressButtonGET2.bind(this)}>
                     <Image style={{width: 120, height: 120}}
-                           source={require('/Users/z002r1y/react/ArtGeneration/styleImages/monet.jpg')}
+                           source={require('/Users/z002r1y/react/ArtGeneration-ui/styleImages/monet.jpg')}
                     />
                     </TouchableOpacity>
 
@@ -149,7 +163,7 @@ class DetailsScreen extends React.Component {
                     <TouchableOpacity onPress={this.onPressButtonGET3.bind(this)}>
 
                     <Image style={{width: 120, height: 120}}
-                           source={require('/Users/z002r1y/react/ArtGeneration/styleImages/rsz_sunset-in-venice.jpg')}
+                           source={require('/Users/z002r1y/react/ArtGeneration-ui/styleImages/rsz_sunset-in-venice.jpg')}
                     />
                     </TouchableOpacity>
 
@@ -157,7 +171,7 @@ class DetailsScreen extends React.Component {
                     <TouchableOpacity onPress={this.onPressButtonGET4.bind(this)}>
 
                     <Image style={{width: 120, height: 120}}
-                           source={require('/Users/z002r1y/react/ArtGeneration/styleImages/rsz_water-lilies-claude-monet.jpg')}
+                           source={require('/Users/z002r1y/react/ArtGeneration-ui/styleImages/rsz_water-lilies-claude-monet.jpg')}
                     />
                     </TouchableOpacity>
                     <TouchableHighlight onPress={this.onPressButtonGET5.bind(this)}>
@@ -270,19 +284,19 @@ class contentImageScreen extends React.Component {
                 />
                 <TouchableOpacity onPress={this.onPressButtonPOST1.bind(this)}>
                     <Image style={{width: 120, height: 120}}
-                           source={require('/Users/z002r1y/react/ArtGeneration/contentImages/1.jpg')}
+                           source={require('/Users/z002r1y/react/ArtGeneration-ui/contentImages/1.jpg')}
                     />
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={this.onPressButtonPOST2.bind(this)}>
                     <Image style={{width: 120, height: 120}}
-                           source={require('/Users/z002r1y/react/ArtGeneration/contentImages/2.jpg')}
+                           source={require('/Users/z002r1y/react/ArtGeneration-ui/contentImages/2.jpg')}
                     />
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={this.onPressButtonPOST3.bind(this)}>
                     <Image style={{width: 120, height: 120}}
-                           source={require('/Users/z002r1y/react/ArtGeneration/contentImages/3.jpg')}
+                           source={require('/Users/z002r1y/react/ArtGeneration-ui/contentImages/3.jpg')}
                     />
                 </TouchableOpacity>
 
@@ -298,10 +312,110 @@ class contentImageScreen extends React.Component {
 
 }
 
+class cameraScreen extends React.Component{
+
+    state = {
+        image: null,
+      };
+
+ 
+
+        
+           
+        // cstorePicture() { console.log(PicturePath); if (PicturePath) { // Create the form data object var data = new FormData(); data.append('picture', { uri: PicturePath, name: 'selfie.jpg', type: 'image/jpg' }); // Create the config object for the POST // You typically have an OAuth2 token that you use for authentication const config = { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'multipart/form-data;', Authorization: 'Bearer ' + 'SECRET_OAUTH2_TOKEN_IF_AUTH' }, body: data }; fetch('https://postman-echo.com/post', config) .then(responseData => { // Log the response form the server // Here we get what we sent to Postman back console.log(responseData); }) .catch(err => { console.log(err); }); }}
+        
+        postPicture() {
+            const apiUrl = 'http://192.168.0.113:5000/up';
+            const uri = this.state.image;
+            const uriParts = uri.split('.');
+            const fileType = uriParts[uriParts.length - 1];
+            const formData = new FormData();
+                formData.append('image', {
+                  uri,
+                  name: `photo.${fileType}`,
+                  type: `image/jpeg`,
+                });
+            const options = {
+                  method: 'POST',
+                  body: formData,
+                  headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'multipart/form-data',
+                  },
+                };
+            return fetch(apiUrl, options);
+              }
+
+
+              process(){
+                fetch('http://192.168.0.113:5000/process', {
+                    method: 'GET',
+        
+        
+                })
+                    .catch(function(error) {
+                        console.log('There has been a problem with your fetch operation: ' + error.message);
+                    });
+        
+                Alert.alert('Image Styling has started ,please wait for 5 minutes!')
+            }
+        
+
+    
+      render() {
+        let { image } = this.state;
+
+
+    
+        return (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Button
+              title="Pick an image from camera roll"
+              onPress={this._pickImage}
+            />
+            {/* {image &&
+              <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />} */}
+
+
+                <TouchableOpacity  onPress={this.postPicture.bind(this)} >
+                <Image source={{ uri: image }} style={{ width: 400, height: 300 }} />
+                </TouchableOpacity>
+
+                <Text style={{fontSize: 30}}>Tap Image to select for styling</Text>
+                <TouchableHighlight onPress={this.process.bind(this)}>
+                <Text style={styles.titleText} >TAP HERE TO PROCESS</Text>
+            </TouchableHighlight>
+          </View>
+
+          
+
+          
+        );
+      }
+    
+      _pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+          allowsEditing: true,
+          aspect: [4, 3],
+        });
+    
+        console.log(result);
+    
+        if (!result.cancelled) {
+          this.setState({ image: result.uri });
+        }
+      };
+         
+    }
+    
+    
+    
 
 
 
-const styles = StyleSheet.create({
+
+
+const styles1 = StyleSheet.create({
     baseText: {
         fontFamily: 'Cochin',
     },
@@ -310,6 +424,30 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
+
+const styles = StyleSheet.create({
+    
+       container: {
+         flex: 1,
+         justifyContent: 'center',
+         alignItems: 'center',
+         backgroundColor: '#FFF8E1'
+       },
+    
+       ImageContainer: {
+         borderRadius: 10,
+         width: 250,
+         height: 250,
+         borderColor: '#9B9B9B',
+         borderWidth: 1 / PixelRatio.get(),
+         justifyContent: 'center',
+         alignItems: 'center',
+         backgroundColor: '#CDDC39',
+         
+       },
+    
+     });
+    
 
 const RootStack = createStackNavigator(
     {
@@ -324,6 +462,9 @@ const RootStack = createStackNavigator(
         },
         contentImage: {
             screen: contentImageScreen,
+        },
+        camera: {
+            screen: cameraScreen,
         }
     },
     {
