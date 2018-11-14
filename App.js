@@ -130,17 +130,11 @@ class DetailsScreen extends React.Component {
                     title="Go back"
                     onPress={() => this.props.navigation.goBack()}
                 />
-                <Button
-                    title="STYLED IMAGE"
-                    onPress={() => this.props.navigation.navigate('Image')}
-                />
-                <Button
-                    title="CONTENT IMAGES"
-                    onPress={() => this.props.navigation.navigate('contentImage')}
-                />
+               
+            
 
                 <Button
-                    title="camera"
+                    title="SELECT CONTENT IMAGES"
                     onPress={() => this.props.navigation.navigate('camera')}
                 />
 
@@ -174,9 +168,8 @@ class DetailsScreen extends React.Component {
                            source={require('/Users/z002r1y/react/ArtGeneration-ui/styleImages/rsz_water-lilies-claude-monet.jpg')}
                     />
                     </TouchableOpacity>
-                    <TouchableHighlight onPress={this.onPressButtonGET5.bind(this)}>
-                        <Text style={styles.titleText} >TAP HERE TO PROCESS</Text>
-                    </TouchableHighlight>
+                    
+
 
 
                 </View>
@@ -373,6 +366,10 @@ class cameraScreen extends React.Component{
               title="Pick an image from camera roll"
               onPress={this._pickImage}
             />
+            <Button
+                    title="STYLED IMAGE"
+                    onPress={() => this.props.navigation.navigate('Image')}
+                />
             {/* {image &&
               <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />} */}
 
