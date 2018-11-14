@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, View, Text,Image,TouchableOpacity ,TouchableHighlight,Alert,StyleSheet,ListView,ScrollView,PixelRatio} from 'react-native';
+import { Button, View, Text,Image,TouchableOpacity ,TouchableHighlight,Alert,StyleSheet,ListView,ScrollView,PixelRatio,ActivityIndicator} from 'react-native';
 import { createStackNavigator } from 'react-navigation'; // Version can be specified in package.json
 import CameraRoll from 'rn-camera-roll';
 import { ImagePicker } from 'expo';
@@ -16,8 +16,8 @@ class HomeScreen extends React.Component {
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{fontSize: 30}}>Welcome to Art Generation System</Text>
                 <Button
-                    title="STYLE IMAGES CATALOG"
-                    onPress={() => this.props.navigation.navigate('Details')}
+                    title="GET STARTED"
+                    onPress={() => this.props.navigation.navigate('camera')}
                 />
             </View>
         );
@@ -29,12 +29,32 @@ class DetailsScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true,
+           loading: false
         }
 
-        this.state.photos = {
-            loading: true,
-        }
+    }
+
+    showLoading() {
+        this.setState({loading: true})
+     }
+ 
+     hideLoading() {
+        this.setState({loading: false})
+     }
+
+
+    process(){
+        this.setState({loading: true})
+        fetch('http://192.168.0.113:5000/process', {
+            method: 'GET',
+
+
+        }) .then(data => this.setState({ data, Loading: false }))
+            .catch(function(error) {
+                console.log('There has been a problem with your fetch operation: ' + error.message);
+            });
+            
+        Alert.alert('Image Styling has started ,please wait for 5 minutes!')
     }
 
 
@@ -131,15 +151,6 @@ class DetailsScreen extends React.Component {
                     onPress={() => this.props.navigation.goBack()}
                 />
                
-            
-
-                <Button
-                    title="SELECT CONTENT IMAGES"
-                    onPress={() => this.props.navigation.navigate('camera')}
-                />
-
-
-
                 <View>
                     <TouchableOpacity onPress={this.onPressButtonGET1.bind(this)}>
                     <Image style={{width: 120, height: 120}}
@@ -168,7 +179,17 @@ class DetailsScreen extends React.Component {
                            source={require('/Users/z002r1y/react/ArtGeneration-ui/styleImages/rsz_water-lilies-claude-monet.jpg')}
                     />
                     </TouchableOpacity>
-                    
+
+                    <Button
+                    title="START"
+                    onPress={ this.process.bind(this)} 
+                
+                   
+                />
+                {console.log(this.state.loading)}
+                {this.state.loading? <ActivityIndicator  /> : null}
+
+                
 
 
 
@@ -308,13 +329,21 @@ class contentImageScreen extends React.Component {
 class cameraScreen extends React.Component{
 
     state = {
-        image: null,
+        image: null
       };
 
- 
-
-        
-           
+    //   constructor(){
+    //     super();
+    //     this.state ={
+    //       status:false,
+    //       image:null
+    //     }
+    //   }
+    
+     alert(){
+    Alert.alert('Image is selected,styling can be initiated')
+    
+     }
         // cstorePicture() { console.log(PicturePath); if (PicturePath) { // Create the form data object var data = new FormData(); data.append('picture', { uri: PicturePath, name: 'selfie.jpg', type: 'image/jpg' }); // Create the config object for the POST // You typically have an OAuth2 token that you use for authentication const config = { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'multipart/form-data;', Authorization: 'Bearer ' + 'SECRET_OAUTH2_TOKEN_IF_AUTH' }, body: data }; fetch('https://postman-echo.com/post', config) .then(responseData => { // Log the response form the server // Here we get what we sent to Postman back console.log(responseData); }) .catch(err => { console.log(err); }); }}
         
         postPicture() {
@@ -336,22 +365,15 @@ class cameraScreen extends React.Component{
                     'Content-Type': 'multipart/form-data',
                   },
                 };
+                Alert.alert('Image is selected,now select the syle image')
             return fetch(apiUrl, options);
+
+
+           
               }
 
 
-              process(){
-                fetch('http://192.168.0.113:5000/process', {
-                    method: 'GET',
-        
-        
-                })
-                    .catch(function(error) {
-                        console.log('There has been a problem with your fetch operation: ' + error.message);
-                    });
-        
-                Alert.alert('Image Styling has started ,please wait for 5 minutes!')
-            }
+              
         
 
     
@@ -365,23 +387,33 @@ class cameraScreen extends React.Component{
             <Button
               title="Pick an image from camera roll"
               onPress={this._pickImage}
+              
             />
             <Button
                     title="STYLED IMAGE"
                     onPress={() => this.props.navigation.navigate('Image')}
                 />
+                <Button
+                    title="BROWSE THE IMAGE CATALOG"
+                    onPress={() => this.props.navigation.navigate('Details')}
+                />
             {/* {image &&
               <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />} */}
 
 
-                <TouchableOpacity  onPress={this.postPicture.bind(this)} >
+                <TouchableOpacity   >
                 <Image source={{ uri: image }} style={{ width: 400, height: 300 }} />
                 </TouchableOpacity>
+              
 
-                <Text style={{fontSize: 30}}>Tap Image to select for styling</Text>
-                <TouchableHighlight onPress={this.process.bind(this)}>
-                <Text style={styles.titleText} >TAP HERE TO PROCESS</Text>
-            </TouchableHighlight>
+                <Button
+                    title="CONFIRM"
+                    
+                    onPress={ this.postPicture.bind(this)} 
+                   
+                />
+                
+                
           </View>
 
           
